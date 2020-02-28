@@ -1,0 +1,237 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>CSPCellsCalculation</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-02-11"><meta name="DC.source" content="CSPCellsCalculation.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Given Data Based in Midelt Area</a></li><li><a href="#3">Accumulating all Qh &amp; Mirror Area in the field</a></li></ul></div><pre class="codeinput"><span class="comment">%--------------------------Solar Field Calculation Start ----------raka-------%</span>
+clear <span class="string">all</span>;
+clc;
+format <span class="string">long</span>;
+</pre><h2 id="2">Given Data Based in Midelt Area</h2><pre class="codeinput">                                                                        <span class="comment">%Raka</span>
+theta_z=0.3247; <span class="comment">%all angle in radians</span>
+gamma_s=0;      <span class="comment">%solar azimuth angle %these 3 variables change with day and time</span>
+I_o=925;        <span class="comment">%Irradiance DNI in Midelt Area</span>
+
+N=12;            <span class="comment">%Zones Discretization, both for radial and azimuthal</span>
+
+h_tower=165;    <span class="comment">%height of tower</span>
+h_helio=12;     <span class="comment">%height of heliostats</span>
+A_helio=115;    <span class="comment">%Area of one heliostat, similar to project description data</span>
+
+TES_diameter=30.07;  <span class="comment">%diameter of TES</span>
+D_receiver=16;       <span class="comment">%Receiver diameter</span>
+A_total=9.3*1e6 ;    <span class="comment">%This v" "first 5.1e6</span>
+A_TES=2*0.25*pi*TES_diameter^2;  <span class="comment">%Area for 2 TES tanks</span>
+A_Powerblock=A_TES;             <span class="comment">%assumed to be the same</span>
+A_Tower=0.25*pi*D_receiver^2 ;    <span class="comment">%land area for tower in m2</span>
+A_inner=(A_TES+A_Powerblock+A_Tower)*3;   <span class="comment">%Source from real layout</span>
+r_h_inner=sqrt((A_inner/pi)) ;   <span class="comment">%radius of inner heliostat</span>
+A_solarField=A_total-A_inner;
+r_h_outer=sqrt((A_total/pi));   <span class="comment">%radius of outermost heliostat</span>
+
+theta_h = linspace(0, 2*pi, N); <span class="comment">%azimuthal angle from 0-2pi, with N discrete</span>
+R = linspace(r_h_inner,r_h_outer , N);           <span class="comment">%radius of cell from tower (m)</span>
+Rho_f = zeros(N);                       <span class="comment">%density of heliostats in a given cell</span>
+
+v_s= [-sin(theta_z)*cos(gamma_s); -sin(theta_z)*sin(gamma_s); cos(theta_z)]; <span class="comment">%vector of v_s calculation</span>
+cosine_eff = zeros(N);               <span class="comment">%cosine effectiveness</span>
+Q_h = zeros(N);                     <span class="comment">%Qthermal of solar for each cell</span>
+f_att = zeros (N);                  <span class="comment">%attenuation loss cell</span>
+f_spill = zeros(N);                 <span class="comment">%spillage loss cell</span>
+
+<span class="keyword">for</span> i=1:N
+    <span class="keyword">for</span> j=1:N
+
+        Rho_f(i,j) = 0.721 * exp(-0.29 * R(i)/h_tower) + 0.03;  <span class="comment">% Calculation of single heliostat density</span>
+
+        theta_T=atan((h_tower-h_helio)/R(i));       <span class="comment">%tower angle</span>
+
+        v_t= [sin(theta_h(j))*cos(theta_T); -cos(theta_h(j))*cos(theta_T); sin(theta_T)]; <span class="comment">%vector of v_t</span>
+
+        n_h=(v_s+v_t)/abs(norm(v_s+v_t));
+
+        cosine_eff(i,j)=dot(v_t,n_h);     <span class="comment">%cosine effectiveness value for single cell</span>
+        d_r = sqrt(R(i).^2+(h_tower-h_helio).^2);
+        f_att(i,j) = 0.1*(d_r)/1000;            <span class="comment">%attenuation loss due to distance from tower</span>
+        e_surface=0.93*0.95*0.96;                <span class="comment">%average value from the lecture slide</span>
+        f_spill=0.05;                             <span class="comment">%assumed to be 5% losses of power</span>
+        f_shadow=0.05;                              <span class="comment">%assumed to be 5% losses of power</span>
+        f_block=0.05;                                   <span class="comment">%assumed to be 5% losses of power</span>
+
+        Q_h(i,j) = A_helio*I_o*e_surface*cosine_eff(i, j)*(1-f_shadow)*(1-f_block)*(1-f_att(i,j))*(1- f_spill);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2 id="3">Accumulating all Qh &amp; Mirror Area in the field</h2><pre class="codeinput">A_cell= zeros(N);   <span class="comment">%zero matrix for single cell area</span>
+Q_field=0       ;   <span class="comment">%initial value before summing all heliostats</span>
+A_total_mirror=0;   <span class="comment">%initial value for mirror area, before summing all heliostats</span>
+
+
+<span class="keyword">for</span> i=1:N-1
+    <span class="keyword">for</span> j=1:N
+        A_cell = pi*(R(i+1).^2 - R(i).^2) / N;
+        Q_field = Q_field + Rho_f(i,j) * (A_cell / A_helio) * Q_h(i,j);
+        A_total_mirror=A_total_mirror+A_cell*Rho_f(i,j);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+Q_field_MW=Q_field*1e-6;
+N_heliostat=A_total_mirror/A_helio;
+
+fprintf(<span class="string">' Q Thermal Solar_field in MW = %f'</span>,Q_field_MW);
+fprintf(<span class="string">'\n Total mirror area = %f'</span>,A_total_mirror);
+fprintf(<span class="string">'\n Number of heliostat = %f'</span>,N_heliostat);
+
+<span class="comment">%--------------------------Solar Field Calculation End ----------raka-------%</span>
+</pre><pre class="codeoutput"> Q Thermal Solar_field in MW = 792.200398
+ Total mirror area = 1623889.478546
+ Number of heliostat = 14120.778074</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHSolar Field Calculation Start REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHrakaREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-%
+clear all;
+clc;
+format long;
+
+%% Given Data Based in Midelt Area
+                                                                        %Raka
+theta_z=0.3247; %all angle in radians
+gamma_s=0;      %solar azimuth angle %these 3 variables change with day and time
+I_o=925;        %Irradiance DNI in Midelt Area
+
+N=12;            %Zones Discretization, both for radial and azimuthal
+
+h_tower=165;    %height of tower
+h_helio=12;     %height of heliostats
+A_helio=115;    %Area of one heliostat, similar to project description data
+
+TES_diameter=30.07;  %diameter of TES
+D_receiver=16;       %Receiver diameter
+A_total=9.3*1e6 ;    %This v" "first 5.1e6
+A_TES=2*0.25*pi*TES_diameter^2;  %Area for 2 TES tanks
+A_Powerblock=A_TES;             %assumed to be the same
+A_Tower=0.25*pi*D_receiver^2 ;    %land area for tower in m2
+A_inner=(A_TES+A_Powerblock+A_Tower)*3;   %Source from real layout
+r_h_inner=sqrt((A_inner/pi)) ;   %radius of inner heliostat
+A_solarField=A_total-A_inner;
+r_h_outer=sqrt((A_total/pi));   %radius of outermost heliostat
+
+theta_h = linspace(0, 2*pi, N); %azimuthal angle from 0-2pi, with N discrete
+R = linspace(r_h_inner,r_h_outer , N);           %radius of cell from tower (m)
+Rho_f = zeros(N);                       %density of heliostats in a given cell
+
+v_s= [-sin(theta_z)*cos(gamma_s); -sin(theta_z)*sin(gamma_s); cos(theta_z)]; %vector of v_s calculation
+cosine_eff = zeros(N);               %cosine effectiveness
+Q_h = zeros(N);                     %Qthermal of solar for each cell
+f_att = zeros (N);                  %attenuation loss cell
+f_spill = zeros(N);                 %spillage loss cell
+
+for i=1:N
+    for j=1:N
+        
+        Rho_f(i,j) = 0.721 * exp(-0.29 * R(i)/h_tower) + 0.03;  % Calculation of single heliostat density
+        
+        theta_T=atan((h_tower-h_helio)/R(i));       %tower angle
+       
+        v_t= [sin(theta_h(j))*cos(theta_T); -cos(theta_h(j))*cos(theta_T); sin(theta_T)]; %vector of v_t
+                    
+        n_h=(v_s+v_t)/abs(norm(v_s+v_t));
+        
+        cosine_eff(i,j)=dot(v_t,n_h);     %cosine effectiveness value for single cell
+        d_r = sqrt(R(i).^2+(h_tower-h_helio).^2);
+        f_att(i,j) = 0.1*(d_r)/1000;            %attenuation loss due to distance from tower
+        e_surface=0.93*0.95*0.96;                %average value from the lecture slide
+        f_spill=0.05;                             %assumed to be 5% losses of power
+        f_shadow=0.05;                              %assumed to be 5% losses of power
+        f_block=0.05;                                   %assumed to be 5% losses of power
+        
+        Q_h(i,j) = A_helio*I_o*e_surface*cosine_eff(i, j)*(1-f_shadow)*(1-f_block)*(1-f_att(i,j))*(1- f_spill);
+    end
+end
+
+%% Accumulating all Qh & Mirror Area in the field 
+
+A_cell= zeros(N);   %zero matrix for single cell area
+Q_field=0       ;   %initial value before summing all heliostats
+A_total_mirror=0;   %initial value for mirror area, before summing all heliostats
+
+ 
+for i=1:N-1
+    for j=1:N
+        A_cell = pi*(R(i+1).^2 - R(i).^2) / N;
+        Q_field = Q_field + Rho_f(i,j) * (A_cell / A_helio) * Q_h(i,j);
+        A_total_mirror=A_total_mirror+A_cell*Rho_f(i,j);
+    end
+end
+
+Q_field_MW=Q_field*1e-6;
+N_heliostat=A_total_mirror/A_helio;
+                                                                        
+fprintf(' Q Thermal Solar_field in MW = %f',Q_field_MW);
+fprintf('\n Total mirror area = %f',A_total_mirror);
+fprintf('\n Number of heliostat = %f',N_heliostat);
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHSolar Field Calculation End REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHrakaREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-%
+##### SOURCE END #####
+--></body></html>

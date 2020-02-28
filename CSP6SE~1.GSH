@@ -1,0 +1,1 @@
+{"url": "https://docs.google.com/open?id=1DOmGXCloAnlKyPX_oRBberA4GQ5wzGA6e2k6H4kSd9M", "doc_id": "1DOmGXCloAnlKyPX_oRBberA4GQ5wzGA6e2k6H4kSd9M", "email": "lugas.raka@gmail.com"}
