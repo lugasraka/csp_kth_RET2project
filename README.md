@@ -3,3 +3,6 @@ The remnants that brought me back to the world of scientific computing (MATLAB a
 
 ## course homepage
 MJ2412 Renewable Energy Technology, Advanced: https://www.kth.se/student/kurser/kurs/MJ2412?l=en
+
+## data analysis and workflow
+Important tools are MATLAB scripts (for calculating and iterating solar power every hour) + EES script (for generating energy production by means of steam-cycle with cascading types of expansions). Presentation slides and final report are provided in the same folder.
